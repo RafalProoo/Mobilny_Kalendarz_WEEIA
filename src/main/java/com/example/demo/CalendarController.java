@@ -2,6 +2,7 @@ package com.example.demo;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,11 @@ public class CalendarController {
 
         Document doc = Jsoup.connect(address).get();
 
-        System.out.println(doc.toString());
+        Elements tbody = doc.select("tbody");
+
+        Elements days = tbody.select("tr.dzien");
+        Elements activeDays = days.select("td.active");
+
+        System.out.println(activeDays.toString());
     }
 }
