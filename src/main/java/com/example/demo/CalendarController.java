@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 @RestController
@@ -65,6 +67,10 @@ public class CalendarController {
 
         stringBuilder.append(endVCalendar);
 
-        System.out.println(stringBuilder.toString());
+        String fileName = year + month + ".ics";
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write(stringBuilder.toString());
+        writer.close();
     }
 }
