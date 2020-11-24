@@ -4,6 +4,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 public class CalendarController {
@@ -25,7 +32,7 @@ public class CalendarController {
     private static final String summary = "SUMMARY:";
 
     @GetMapping("/getSchedule")
-    public void getSchedule(@RequestParam String year, @RequestParam String month) throws IOException {
+    public ResponseEntity<Resource> getSchedule(@RequestParam String year, @RequestParam String month) throws IOException {
         String address = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
 
         Document doc = Jsoup.connect(address).get();
@@ -72,5 +79,19 @@ public class CalendarController {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
         writer.write(stringBuilder.toString());
         writer.close();
+
+        Path path = Paths.get(fileName);
+        Resource resource = null;
+
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
