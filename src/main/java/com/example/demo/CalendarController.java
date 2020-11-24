@@ -13,6 +13,15 @@ import java.io.IOException;
 @RestController
 public class CalendarController {
 
+    public static final String version = "VERSION:1.0\r\n";
+    private static final String beginVCalendar = "BEGIN:VCALENDAR\r\n";
+    private static final String endVCalendar = "END:VCALENDAR\r\n";
+    private static final String beginVEvent = "BEGIN:VEVENT\r\n";
+    private static final String endVEvent = "END:VEVENT\r\n";
+    private static final String startDate = "DTSTART;VALUE=DATE:";
+    private static final String endDate = "DTEND;VALUE=DATE:";
+    private static final String summary = "SUMMARY:";
+
     @GetMapping("/getSchedule")
     public void getSchedule(@RequestParam String year, @RequestParam String month) throws IOException {
         String address = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
@@ -20,7 +29,12 @@ public class CalendarController {
         Document doc = Jsoup.connect(address).get();
         Elements activeDays = doc.select("td.active");
 
-        for (Element element : activeDays){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(beginVCalendar);
+        stringBuilder.append(version);
+
+        for (Element element : activeDays) {
 
             String dateFrom = year + month;
             String dateTo = year + month;
@@ -38,7 +52,19 @@ public class CalendarController {
             dateFrom += day;
             dateTo += (Integer.parseInt(day) + 1);
 
-            System.out.println(dateFrom + " " + dateTo);
+            stringBuilder.append(beginVEvent);
+
+            stringBuilder.append(startDate).append(dateFrom).append("\r\n");
+            stringBuilder.append(endDate).append(dateTo).append("\r\n");
+
+            String description = element.select("p").text();
+            stringBuilder.append(summary).append(description).append("\r\n");
+
+            stringBuilder.append(endVEvent);
         }
+
+        stringBuilder.append(endVCalendar);
+
+        System.out.println(stringBuilder.toString());
     }
 }
