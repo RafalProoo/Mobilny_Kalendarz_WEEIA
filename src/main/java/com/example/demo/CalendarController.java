@@ -14,7 +14,7 @@ import java.io.IOException;
 public class CalendarController {
 
     @GetMapping("/getSchedule")
-    public void getSchedule(@RequestParam int month, @RequestParam int year) throws IOException {
+    public void getSchedule(@RequestParam int year, @RequestParam int month) throws IOException {
         String address = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
 
         Document doc = Jsoup.connect(address).get();
